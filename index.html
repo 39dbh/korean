@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>K-Listen | 推しの動画で韓国語</title>
+<style>
+:root{--bg:#f5f6fa;--panel:#fff;--ink:#202333;--muted:#74798b;--line:#e7e9f0;--accent:#6658d3;--soft:#efedff;--good:#16845b;--bad:#c64d58}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Noto Sans JP",sans-serif}
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}.head{max-width:1120px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-weight:850;font-size:21px;letter-spacing:-.7px}.brand span{color:var(--accent)}.tag{font-size:12px;color:var(--muted)}
+main{max-width:1120px;margin:24px auto;padding:0 18px 60px}.hero{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:20px}.hero h1{font-size:27px;line-height:1.2;margin:0 0 7px}.hero p{margin:0;color:var(--muted)}
+.layout{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 4px 18px #252b4408}.card h2{font-size:17px;margin:0 0 13px}.field{display:flex;gap:8px}.field input{flex:1;min-width:0}input,textarea,select{font:inherit;border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fff;color:var(--ink);width:100%}textarea{min-height:112px;resize:vertical}label{font-size:13px;color:var(--muted);display:block;margin:12px 0 6px}
+button{font:inherit;border:0;border-radius:10px;padding:10px 14px;background:var(--accent);color:#fff;font-weight:650;cursor:pointer}button.secondary{background:#f0f1f6;color:#33384a}button.ghost{background:transparent;color:var(--accent);padding:7px}button:disabled{opacity:.4;cursor:not-allowed}.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}.tab{background:#f0f1f6;color:#50556a}.tab.active{background:var(--soft);color:var(--accent)}
+.video{aspect-ratio:16/9;background:#171923;border-radius:12px;overflow:hidden;display:grid;place-items:center;color:#fff}.video iframe{width:100%;height:100%;border:0}.empty{padding:25px;text-align:center;color:#c7c9d4}.small{font-size:12px;color:var(--muted)}.sentence{font-size:26px;font-weight:800;letter-spacing:.2px;margin:12px 0 5px;word-break:keep-all}.translation{font-size:17px;color:var(--good);font-weight:650}.pill{display:inline-block;border-radius:999px;background:#f0f1f6;padding:4px 9px;font-size:12px;color:#606579;margin:3px 3px 3px 0}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.progress{height:6px;background:#eeeef4;border-radius:99px;overflow:hidden;margin:10px 0}.progress div{height:100%;background:var(--accent);width:0}
+.list{display:grid;gap:7px;max-height:360px;overflow:auto}.item{padding:10px 12px;border:1px solid var(--line);border-radius:11px;cursor:pointer}.item.active{border-color:var(--accent);background:var(--soft)}.item strong{display:block}.item small{color:var(--muted)}
+.options{display:grid;gap:8px}.options button{background:#f2f3f7;color:#34384a;text-align:left}.options button.correct{background:#e4f6ee;color:#126b4a}.options button.wrong{background:#ffeaec;color:#a93440}
+.notice{padding:11px 13px;border-radius:11px;background:#f6f5ff;color:#57508c;font-size:13px;margin-top:12px}.sharebox{display:flex;gap:8px;margin-top:10px}.sharebox input{font-size:12px}.hidden{display:none!important}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.word{border-bottom:1px dashed #ccc;padding:5px 0}.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:25px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.hero{align-items:start;flex-direction:column}.head{padding:12px 15px}main{margin-top:18px}.sentence{font-size:23px}}
+</style></head>
+<body>
+<header><div class="head"><div><div class="brand">K-<span>Listen</span> 🎧</div><div class="tag">好きな動画で、韓国語が聞き取れるように。</div></div><button class="secondary" id="shareTop">教材を共有 ↗</button></div></header>
+<main>
+<div class="hero"><div><h1>推しの動画を、<br>自分だけの韓国語教材に。</h1><p>動画・セリフ・意味をつなげて、聞き取れる韓国語を増やそう。</p></div><span class="pill">ログイン不要 · URL共有</span></div>
+<div class="layout">
+<section class="card">
+<h2>① 動画と字幕を登録</h2>
+<label>YouTube URL（任意）</label><div class="field"><input id="youtube" placeholder="https://www.youtube.com/watch?v=..."><button id="loadVideo">読み込む</button></div>
+<div class="video" id="video"><div class="empty">YouTube URLを登録すると<br>ここで動画を再生できます</div></div>
+<label>教材タイトル</label><input id="title" placeholder="例：推しのライブ配信・ ep.12">
+<label>字幕・セリフ（1行に1セリフ）</label><textarea id="transcript" placeholder="오늘 뭐 먹을까?&#10;나는 아무거나 좋아.&#10;진짜? 그럼 떡볶이 먹자."></textarea>
+<div class="two"><div><label>日本語訳（任意・セリフと同じ行数）</label><textarea id="translations" placeholder="今日何食べようか？&#10;私は何でもいいよ。&#10;本当？じゃあトッポッキ食べよう。"></textarea></div><div><label>タイムスタンプ（任意・例 00:12）</label><textarea id="timestamps" placeholder="00:12&#10;00:15&#10;00:18"></textarea></div></div>
+<div class="controls"><button id="build">セリフを教材にする</button><button class="secondary" id="srtBtn">SRTを読み込む</button><input id="srtFile" class="hidden" type="file" accept=".srt,.vtt,.txt"></div>
+<div class="notice">字幕を自動取得できない動画では、YouTubeの字幕をコピーして貼り付けるか、SRT/VTTファイルを読み込んでください。</div>
+</section>
+<section class="card">
+<h2>② セリフを聞いて理解する</h2>
+<div class="tabs"><button class="tab active" data-mode="listen">聞く</button><button class="tab" data-mode="quiz">意味クイズ</button><button class="tab" data-mode="dictation">ディクテーション</button></div>
+<div id="study">
+<div class="small" id="counter">教材を登録してください</div><div class="progress"><div id="bar"></div></div>
+<div class="sentence" id="korean">안녕하세요!</div><div class="translation hidden" id="japanese">こんにちは！</div>
+<div class="controls"><button id="speak">🔊 韓国語を読み上げ</button><button class="secondary" id="reveal">日本語訳を表示</button><button class="secondary" id="prev">← 前</button><button class="secondary" id="next">次 →</button></div>
+<div id="modeArea"></div>
+<div class="notice" id="explain">セリフを選択すると、ここに学習内容が表示されます。</div>
+</div>
+</section>
+</div>
+<div class="layout" style="margin-top:18px">
+<section class="card"><h2>③ セリフ一覧</h2><div class="list" id="sentenceList"><div class="small">まだセリフがありません。</div></div></section>
+<section class="card"><h2>④ マイ単語・学習メモ</h2><p class="small">動画で出会った表現を自分のメモとして保存できます。</p><label>韓国語</label><input id="wordKo" placeholder="예: 눈치"><label>意味・メモ</label><input id="wordJa" placeholder="空気を読む力"><div class="controls"><button id="addWord">単語を保存</button></div><div id="words"></div></section>
+</div>
+<section class="card" style="margin-top:18px"><h2>友達に教材を共有</h2><p class="small">動画URL・セリフ・訳を共有リンクにまとめます。受け取った人はログインせずに教材を開けます。</p><div class="controls"><button id="share">共有URLを作成</button><button class="secondary" id="copy">URLをコピー</button></div><div class="sharebox"><input id="shareUrl" readonly placeholder="共有URLがここに表示されます"></div><div class="notice">共有リンクには入力した字幕・日本語訳・動画URLが含まれます。個人情報や公開したくない内容は入力しないでください。</div></section>
+<div class="footer">K-Listen · ブラウザ内で動作する学習ツール。教材データは端末内に保存されます。</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let lines=[],idx=0,mode='listen',words=JSON.parse(localStorage.getItem('kl_words')||'[]');
+function ytId(url){try{let u=new URL(url);if(u.hostname.includes('youtu.be'))return u.pathname.slice(1);if(u.hostname.includes('youtube.com'))return u.searchParams.get('v')||u.pathname.split('/').filter(Boolean).pop();}catch(e){}return null}
+function parseTime(t){if(!t)return 0;let p=t.replace(',','.').split(':').map(Number);return p.reduce((a,b)=>a*60+b,0)}
+function renderVideo(){let id=ytId($('youtube').value.trim());$('video').innerHTML=id?`<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}" title="YouTube video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`:'<div class="empty">有効なYouTube URLを入力してください</div>'}
+$('loadVideo').onclick=renderVideo;
+function makeLines(ko,ja=[],ts=[]){lines=ko.filter(x=>x.trim()).map((x,i)=>({ko:x.trim(),ja:(ja[i]||'').trim(),time:(ts[i]||'').trim()}));idx=0;renderStudy();renderList()}
+$('build').onclick=()=>{let ko=$('transcript').value.split(/\r?\n/);let ja=$('translations').value.split(/\r?\n/);let ts=$('timestamps').value.split(/\r?\n/);makeLines(ko,ja,ts);if(lines.length)saveLocal()};
+$('srtBtn').onclick=()=>$('srtFile').click();
+$('srtFile').onchange=async e=>{let f=e.target.files[0];if(!f)return;let txt=await f.text();let blocks=txt.replace(/\r/g,'').split(/\n\n+/);let ko=[],ts=[];for(let b of blocks){let a=b.split('\n').filter(Boolean);let ti=a.find(x=>x.includes('-->'));if(ti)ts.push(ti.split('-->')[0].trim().slice(0,8));let content=a.filter(x=>!(/^\d+$/.test(x)||x.includes('-->'))).join(' ');if(content)ko.push(content)}$('transcript').value=ko.join('\n');$('timestamps').value=ts.join('\n');makeLines(ko,[],ts)};
+function renderStudy(){let l=lines[idx];$('counter').textContent=l?`${idx+1} / ${lines.length} セリフ`:'教材を登録してください';$('bar').style.width=lines.length?`${(idx+1)/lines.length*100}%`:'0';$('korean').textContent=l?.ko||'안녕하세요!';$('japanese').textContent=l?.ja||'日本語訳は未登録です';$('japanese').classList.add('hidden');$('reveal').textContent='日本語訳を表示';$('explain').textContent=l?(l.time?`動画の目安位置：${l.time} · YouTube動画はプレーヤーで該当箇所に移動してください。`:'このセリフの意味やニュアンスを考えてみましょう。'):'セリフを登録すると、ここに学習内容が表示されます。';renderMode()}
+function renderList(){$('sentenceList').innerHTML=lines.map((l,i)=>`<div class="item ${i===idx?'active':''}" data-i="${i}"><strong>${esc(l.ko)}</strong><small>${esc(l.ja||'訳なし')} ${l.time?' · '+esc(l.time):''}</small></div>`).join('')||'<div class="small">まだセリフがありません。</div>';document.querySelectorAll('.item').forEach(el=>el.onclick=()=>{idx=+el.dataset.i;renderStudy();renderList()})}
+function renderMode(){let l=lines[idx];let area=$('modeArea');area.innerHTML='';if(!l)return;if(mode==='quiz'){let choices=[l.ja||'日本語訳を登録してください',...lines.filter((x,i)=>i!==idx&&x.ja).sort(()=>Math.random()-.5).slice(0,3).map(x=>x.ja)].sort(()=>Math.random()-.5);area.innerHTML='<p><b>このセリフの意味は？</b></p><div class="options">'+choices.map(x=>`<button data-answer="${esc(x)}">${esc(x)}</button>`).join('')+'</div>';area.querySelectorAll('button').forEach(b=>b.onclick=()=>{b.classList.add(b.dataset.answer===l.ja?'correct':'wrong');$('explain').textContent=b.dataset.answer===l.ja?'正解！':'もう一度、セリフの意味を確認してみましょう。 正解：'+l.ja})}else if(mode==='dictation'){area.innerHTML='<p><b>聞こえた韓国語を入力してください</b></p><input id="typed" placeholder="韓国語を入力"><div class="controls"><button id="checkTyped">答え合わせ</button></div>';area.querySelector('#checkTyped').onclick=()=>{$('explain').textContent=$('typed').value.replace(/\s/g,'')===l.ko.replace(/\s/g,'')?'正解！よく聞き取れました。':'正解：'+l.ko}}else{area.innerHTML='<p class="small">まずは字幕を見ずに音を聞き、聞こえた内容を頭の中で再現してみましょう。</p>'}}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));renderMode()});
+$('speak').onclick=()=>{let l=lines[idx];if(!l)return;let u=new SpeechSynthesisUtterance(l.ko);u.lang='ko-KR';u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u)};
+$('reveal').onclick=()=>{$('japanese').classList.toggle('hidden');$('reveal').textContent=$('japanese').classList.contains('hidden')?'日本語訳を表示':'日本語訳を隠す'};
+$('prev').onclick=()=>{if(idx>0){idx--;renderStudy();renderList()}};$('next').onclick=()=>{if(idx<lines.length-1){idx++;renderStudy();renderList()}};
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderWords(){$('words').innerHTML=words.map(w=>`<div class="word"><b>${esc(w.ko)}</b> — ${esc(w.ja)}</div>`).join('')||'<p class="small">保存した単語はここに表示されます。</p>'}
+$('addWord').onclick=()=>{let ko=$('wordKo').value.trim(),ja=$('wordJa').value.trim();if(!ko)return;words.unshift({ko,ja});localStorage.setItem('kl_words',JSON.stringify(words));$('wordKo').value='';$('wordJa').value='';renderWords()};
+function payload(){return {v:1,title:$('title').value,url:$('youtube').value,lines,words:[]}}
+function share(){let data=btoa(unescape(encodeURIComponent(JSON.stringify(payload()))));let url=location.href.split('#')[0]+'#lesson='+data;$('shareUrl').value=url}
+$('share').onclick=share;$('shareTop').onclick=()=>{share();$('shareUrl').scrollIntoView({behavior:'smooth',block:'center'})};
+$('copy').onclick=async()=>{if(!$('shareUrl').value)share();try{await navigator.clipboard.writeText($('shareUrl').value);$('copy').textContent='コピーしました！';}catch(e){$('shareUrl').select();document.execCommand('copy');$('copy').textContent='コピーしました！'}};
+function saveLocal(){try{localStorage.setItem('kl_last',JSON.stringify(payload()))}catch(e){}}
+function loadPayload(p){$('title').value=p.title||'';$('youtube').value=p.url||'';if(p.url)renderVideo();lines=p.lines||[];idx=0;$('transcript').value=lines.map(x=>x.ko).join('\n');$('translations').value=lines.map(x=>x.ja).join('\n');$('timestamps').value=lines.map(x=>x.time).join('\n');renderStudy();renderList()}
+try{if(location.hash.startsWith('#lesson=')){let p=JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(8)))));loadPayload(p)}else{let p=JSON.parse(localStorage.getItem('kl_last')||'null');if(p)loadPayload(p)}}catch(e){console.warn('共有データを読み込めませんでした',e)}
+renderWords();renderStudy();renderList();
+</script></body></html>
